@@ -70,17 +70,26 @@ class FixedSizeBlockAllocator {
     }
 
     // Put block back to memory pool
-    // no error check is realized.
-    // for reliability reasons, the following checks can be implemented with the
-    // return of an error code:
+    // Complete error check is not realized.
+    // For reliability reasons, the following checks can be implemented with the
+    // return error codes:
+    // - attempt to return a nullptr to the full pool
     // - attempt to return a block to the full pool
     // - attempt to return a pointer that does not point to the start of any
     // block in the pool
-    void put(void *p_blk) {
+    // returns: true - on success, false - on error
+    bool put(void *p_blk) {
+        if (0 == p_blk) { // no critical section needed for this check
+          return false;
+        }
         CS_POLICY cs;
+        if (available_blocks >= BLOCK_NUM) {
+          return false;
+        }
         static_cast<pool_item_t *>(p_blk)->p_next = p_first;
         p_first = static_cast<pool_item_t *>(p_blk);
         available_blocks++;
+        return true;
     }
 
     T avail() { return available_blocks; }

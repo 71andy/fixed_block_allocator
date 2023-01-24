@@ -65,3 +65,21 @@ TEST (block_allocator, check_block_alignment) {
     CHECK_EQUAL_ZERO(reinterpret_cast<std::uintptr_t>(p4) %
                      (sizeof(unsigned long)));
 }
+
+TEST (block_allocator, put_back_extra_block) {
+    FixedSizeBlockAllocator<uint32_t, 3, 10> mem_pool;
+
+    void *p = mem_pool.get();
+    bool r1 = mem_pool.put(p);
+    CHECK(r1);
+    bool r2 = mem_pool.put(p);
+    CHECK_FALSE(r2);
+}
+
+TEST (block_allocator, put_back_nullptr) {
+    FixedSizeBlockAllocator<uint32_t, 3, 10> mem_pool;
+
+    mem_pool.get();
+    bool r = mem_pool.put(0);
+    CHECK_FALSE(r);
+}
