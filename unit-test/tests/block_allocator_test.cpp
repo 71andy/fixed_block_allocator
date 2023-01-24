@@ -14,11 +14,20 @@ TEST (block_allocator, check_init_state) {
 TEST (block_allocator, check_get_and_put) {
     FixedSizeBlockAllocator<uint32_t, 10, 100> mem_pool;
 
-    void *p = mem_pool.get();
-    CHECK(p != (void *)0);
+    void *p1 = mem_pool.get();
+    CHECK(p1 != (void *)0);
     CHECK_EQUAL(9, mem_pool.avail());
 
-    mem_pool.put(p);
+    void *p2 = mem_pool.get();
+    CHECK(p2 != (void *)0);
+    CHECK_EQUAL(8, mem_pool.avail());
+
+    CHECK(p1 != p2);
+
+    mem_pool.put(p1);
+    CHECK_EQUAL(9, mem_pool.avail());
+
+    mem_pool.put(p2);
     CHECK_EQUAL(10, mem_pool.avail());
 }
 
